@@ -1,6 +1,6 @@
 # Discover and work through a project
 
-Use this workflow for a whole-project ShipSure run. The user should not need to know where the gaps are. For a named flow, apply only the relevant discovery steps and follow dependencies needed to assess that flow.
+Use this workflow for a whole-project ShipSure scan. The default result is an issue list in the conversation, without application/test edits. The user should not need to know where the gaps are. For a named flow, apply only the relevant discovery steps and follow dependencies needed to assess that flow.
 
 ## Build the inventory from evidence
 
@@ -46,8 +46,10 @@ Identify actual runner commands from repository configuration. If none exists, d
 
 ## Keep the loop moving and finish honestly
 
-For each area: discover its scenarios, trace candidates, reproduce where practical, correct supported defects within authority, verify affected behavior, and update its evidence. Add newly discovered areas to the inventory. Reassess neighboring flows after a shared fix; the same root cause need not produce duplicate findings.
+For each area in the default scan: discover its scenarios, trace candidates, reproduce through safe existing checks or inline probes where practical, and prepare findings with correction/test recipes. Add newly discovered areas to the inventory. Keep application code and tests unchanged, including when a correction is small or urgent. The same root cause need not produce duplicate findings.
+
+Only after a user requests corrections, implement the selected supported fixes and their regression tests. Reassess neighboring flows after a shared fix and update the linked evidence. A plain follow-up in the same chat can start that work; no additional ShipSure invocation is required.
 
 Continue through independent work when one product decision or unavailable service blocks a scenario. Capture the exact decision needed and a proposed option grounded in the project. Do not ask the user to design the whole review.
 
-Before finishing, reconcile the inventory with the first-party entry points/packages discovered and the areas reached during investigation. Every in-scope area needs an explicit disposition and evidence or a concrete blocker. Report reviewed areas separately from executed checks, and list unfinished work. A review can finish with open product decisions or blocked verification, but it must not be described as fully verified; queued or uninvestigated areas mean the requested scan remains incomplete.
+Before finishing, reconcile the inventory with the first-party entry points/packages discovered and the areas reached during investigation. Every in-scope area needs an explicit disposition and evidence or a concrete blocker. Present the issue list directly in chat, with stable IDs and enough evidence for a subsequent correction request. Report reviewed areas separately from executed checks, and list unfinished work. A review can finish with unfixed findings, open product decisions or blocked verification, but it must not be described as fully verified; queued or uninvestigated areas mean the requested scan remains incomplete.

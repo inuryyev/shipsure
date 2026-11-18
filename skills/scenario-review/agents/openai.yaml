@@ -1,4 +1,4 @@
 interface:
   display_name: "ShipSure Scenario Review"
-  short_description: "Discover project gaps, fix defects, and verify tests"
-  default_prompt: "Use $scenario-review to discover this whole project, fix confirmed defects, and verify them with tests, leaving product decisions open."
+  short_description: "Scan projects and list actionable findings in chat"
+  default_prompt: "Use $scenario-review to scan this whole project and list issues, evidence, and correction/test plans in chat without changing application code or tests."

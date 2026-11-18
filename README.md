@@ -1,20 +1,20 @@
 # ShipSure
 
-**Find gaps. Build fixes. Verify with tests.**
+**Find gaps. Review the list. Fix on request.**
 
-ShipSure is an open-source skill that discovers an existing project, finds missing scenarios, reachable bugs and security-relevant gaps, fixes confirmed defects, and verifies the corrections with meaningful tests. You provide the project; ShipSure discovers the modules, failure cases, and tests to investigate.
+ShipSure is an open-source skill that scans an existing project and presents a prioritized issue list directly in your coding assistant's chat. It discovers missing scenarios, reachable bugs, security-relevant gaps and test needs without changing application code or tests. You provide the project; ShipSure discovers what to investigate. You can then ask the same assistant to fix all or selected findings in an ordinary follow-up message.
 
 ## Status
 
-The `scenario-review` skill includes project discovery, a scenario catalog, correction/test recipes, and resumable local records. The [initial evaluation](evaluations/validation.md) documents the earlier workflow; the [whole-project validation](evaluations/discovery-validation.md) exercised discovery, repair and a report-only override without supplied flow names. Both use synthetic fixtures. Effectiveness on varied real-world projects still needs evaluation.
+The `scenario-review` skill includes project discovery, a scenario catalog, correction/test recipes, and resumable local records. The [chat-report validation](evaluations/chat-report-validation.md) checked the default no-code-edit report and an ordinary follow-up repair request on a synthetic fixture. Earlier [reservation](evaluations/validation.md) and [discovery](evaluations/discovery-validation.md) results are historical snapshots. Effectiveness on varied real-world projects still needs evaluation.
 
 ## Workflow
 
 1. Run the skill in the existing project you want to improve.
 2. It discovers first-party modules, user/API/background flows, business rules, permissions, and tests, maintaining an inventory of review coverage.
 3. It investigates missing or broken behavior across those areas and their connections, using code evidence and local reproduction when practical.
-4. It fixes confirmed defects and adds focused regression tests, respecting explicit read-only or narrower instructions.
-5. It checks the corrections, continues the remaining inventory, and reports unresolved decisions and unverified or unfinished areas.
+4. It presents a prioritized list in the chat: the problem, impact, code evidence, and suggested correction and test. Application code and tests stay unchanged.
+5. When you later say “fix these” or select finding IDs, your existing assistant applies the authorized corrections and verifies them with regression tests.
 
 Your existing coding assistant performs the review. ShipSure requires no server, hosted application, or API key of its own. The assistant needs access to the target repository and its normal development tools.
 
@@ -33,16 +33,29 @@ Open your own existing project in Codex, then send:
 $scenario-review
 ```
 
-**An explicit bare invocation runs whole-project discovery, confirmed-defect repair, and verification.** You do not need to name modules, suspected security issues, failure cases, or test methods. New features and ambiguous product decisions remain proposals for you to decide. The assistant states its mode before starting; deployment, publishing, and live-system operations are outside this default.
+**The default is a whole-project scan followed by an issue list in the chat, with no application or test edits.** You do not need to name modules, suspected security issues, failure cases, or test methods. Existing safe checks or inline probes may run to substantiate findings. The assistant does not automatically fix even an obvious or high-priority defect.
 
-For a report without code changes:
+For example, the chat might show:
 
 ```text
-$scenario-review Review this whole project and report findings only.
-Do not change application code or tests.
+1. F-001 — High: a report includes another tenant's data.
+   Evidence: affected code and a reproducible request.
+   Correction/test: enforce tenant scope and assert no foreign rows appear.
+
+2. F-002 — Medium: an expired invitation is still accepted.
+   Evidence: the expiry boundary and observed response.
+   Correction/test: reject at expiry without consuming the token.
 ```
 
-For a smaller task, name the scope, for example: `$scenario-review Review and fix only the invitation flow.` Explicit limits override the default. Implicit skill selection during another task keeps that task's scope and modification authority.
+These are illustrative findings, not a scan of your project. After reading your actual list, send a normal message in that same chat:
+
+```text
+Fix F-001 and F-002, add regression tests, and run the relevant checks.
+```
+
+There is no separate repair service, new chat, or second skill invocation to manage. The coding assistant already has the findings and performs the requested fixes. Optional new features and ambiguous product decisions remain yours to decide. A default scan ends after its report; it does not start the repair step by itself.
+
+For a smaller scan, name its scope, for example: `$scenario-review Review only the invitation flow.` If you explicitly request review and fixes together, that authorization applies within your stated scope. Implicit skill selection during another task preserves that task's scope and authority. Deployment, publishing, and live-system operations require their own applicable authorization.
 
 The [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills#install-curated-skills-for-local-use) describes the installer and discovery behavior. If a newly installed skill does not appear, restart Codex.
 
@@ -52,11 +65,11 @@ You can also point an assistant directly at [skills/scenario-review/SKILL.md](sk
 
 - A product map, coverage inventory, and replayable scenarios discovered from project evidence.
 - Findings separated into behavior defects, coverage gaps, optional improvements, and open questions, with code evidence and impact.
-- Authorized fixes with meaningful tests, including before/after evidence when practical.
+- A prioritized issue list in the chat, using stable IDs so you can select findings for a later correction.
 - Concrete correction/test recipes for remaining gaps: affected boundary, setup, inputs, assertions, and the runner or missing prerequisite.
 - A record of reviewed areas, checks actually run, blocked verification, and unfinished work.
 
-Review-only requests keep application code and tests unchanged. Explicit read-only or no-file requests also suppress record writes. An absent test is not automatically a defect, and a local passing test is not a guarantee of production readiness.
+Default scans keep application code and tests unchanged. Explicit read-only or no-file requests also suppress record writes. After a correction request, the assistant reports the selected fixes and fresh test evidence. An absent test is not automatically a defect, and a local passing test is not a guarantee of production readiness.
 
 ## Skill layout
 

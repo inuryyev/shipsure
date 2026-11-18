@@ -1,5 +1,7 @@
 # Default whole-project workflow validation — 2026-11-18
 
+Historical result: this snapshot used automatic repair on a bare invocation. The current skill defaults to a chat report without application/test edits; use the current [evaluation procedure](discovery.md) for that behavior. Results below remain evidence only for the recorded snapshot.
+
 An independent coding assistant received only a disposable copy of the [workspace fixture](project-discovery/README.md), the complete skill folder, and the request “Run ShipSure on this existing project.” No module names, suspected defects, expected fixes, or test plan were supplied. The [rubric](discovery.md) and independent checker stayed outside its context. The run was restricted to local, offline work in the disposable project.
 
 ## Observed outcomes

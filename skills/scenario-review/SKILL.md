@@ -1,24 +1,24 @@
 ---
 name: scenario-review
-description: Run ShipSure on an existing project to discover its modules and flows, find reachable bugs, security-relevant gaps and missing scenarios, fix confirmed defects, and verify with meaningful tests. Use for whole-project quality reviews or finding what breaks and what is missing without a supplied checklist. Respect explicit report-only and narrower requests; not for routine edits or style-only reviews.
+description: Run ShipSure on an existing project to discover its modules and flows and present a prioritized issue list in chat, with code evidence and concrete correction/test plans. Use for whole-project quality reviews or finding bugs, security-relevant gaps and missing scenarios without a supplied checklist. Scans do not change application code or tests; fixes follow a user request. Not for routine edits or style-only reviews.
 ---
 
 # Scenario Review
 
-Discover what an existing project does, where it breaks, what is missing, and how to verify the correction. The user supplies the project, not a list of modules, suspected bugs, edge cases, or tests. Own that discovery and follow the evidence through to authorized fixes. Work in the inspected project; ShipSure is the review method, not the destination for project data. Respond in the user's language while following the project's naming conventions.
+Discover what an existing project does, where it breaks, what is missing, and how to verify a correction. The user supplies the project, not a list of modules, suspected bugs, edge cases, or tests. Own that discovery and present actionable findings directly in the conversation. ShipSure supplies a review workflow to the user's existing coding assistant; it is not a separate repair service. That same assistant can later act on the findings when the user asks. Work in the inspected project, not the ShipSure repository. Respond in the user's language while following the project's naming conventions.
 
 ## Establish scope and authority
 
-Infer the target project and requested outcome from the conversation and repository instructions. An explicit bare invocation of `$scenario-review` or “run ShipSure” uses the full discover–fix–verify workflow below. State that mode briefly, then start. Ask only when the target cannot be identified or a missing product decision would materially change a correction; continue independent work while waiting. Do not ask the user to enumerate areas or invent test cases for you.
+Infer the target project and requested outcome from the conversation and repository instructions. A bare invocation of `$scenario-review`, “run ShipSure”, or a scan request discovers and investigates the project, then returns the issue list in chat without applying fixes. State that mode briefly, then start. Ask only when the target cannot be identified or a missing product decision materially affects a finding; continue independent work while waiting. Do not ask the user to enumerate areas or invent test cases for you.
 
 | User intent | Authorized work |
 | --- | --- |
-| Explicit bare skill invocation, run ShipSure, scan and fix | Discover the whole project, investigate reachable gaps, fix confirmed defects, add meaningful tests, and verify. Leave new product decisions open. |
-| Review only, report findings, no code edits | Discover the requested scope, inspect and run safe local checks, and record concrete correction/test plans. Keep application code and tests unchanged. |
-| Review and fix a named flow, complete specified behavior | Perform the same discover–fix–verify cycle within that boundary. |
+| Bare invocation, run ShipSure, scan, review, report findings | Discover the requested scope (the whole project by default), run safe existing checks or inline probes, and present findings and correction/test recipes in chat. Keep application code, tests, dependencies and application configuration unchanged. |
+| A later “fix these”, or “fix F-001 and F-003” | The same coding assistant rechecks the selected findings, implements authorized corrections, adds regression tests, and verifies. No skill reinvocation or separate service is needed. |
+| Explicitly review and fix in one request, or complete specified behavior | Respect that existing authorization within its stated scope; report findings and carry out the requested fixes without imposing another approval gate. |
 | Verify an existing fix | Recheck the linked scenarios and relevant regressions; record the observed results. |
 
-When selected implicitly during another task, follow that task's scope and modification authority; implicit selection does not authorize a whole-project repair. An explicit report-only instruction always overrides the default workflow.
+During a scan, severity or an apparently obvious fix does not grant edit authority. Do not create regression test files, run automatic fixes/formatters, change configuration, or install dependencies to make a diagnostic pass. Use safe inline/in-memory probes when feasible; local review records follow the rules below. Stop after presenting the report unless fixes were actually requested. When selected implicitly during another task, preserve that task's scope and authority.
 
 Honor explicit read-only or no-file instructions over record creation. For no-file requests, use check settings that suppress caches and generated reports; skip checks whose writes cannot be avoided and explain the limit. Reuse authorization already given; do not make approval of every finding a new gate. A review does not authorize deployment, production writes, paid service calls, publishing, or use of the user's signed-in browser. Follow the environment's permissions for those actions.
 
@@ -60,6 +60,8 @@ For each actionable gap, derive a correction and test recipe: the supported expe
 
 ## Fix and verify within scope
 
+This section applies only after a user instruction to fix. A normal follow-up in the same chat is sufficient; do not require the user to copy the report, repeat the skill name, or move to another interface. Resolve selected IDs or list numbers against the latest displayed report and its records. “Fix these” authorizes the reported confirmed defects and directly related regression coverage; optional new features and unresolved product choices still require their stated decisions. If the user selects specific items, leave the others unchanged. Revalidate evidence against the current files before editing and preserve the finding IDs.
+
 For authorized fixes, work from the highest-impact supported findings. Prefer the smallest change that enforces the invariant at the correct boundary. Preserve established contracts unless a change is requested or necessary for the agreed correction. If a missing product decision blocks one fix, leave that item open and continue other authorized work.
 
 Where practical, add a regression test and run it against the original implementation before applying the fix. Establish that it fails for the reported behavior, then passes after the change. If reproducing the original failure is unsafe or no longer practical, explain that limitation rather than claiming a before/after result. Do not revert the user's working changes to manufacture a baseline.
@@ -80,6 +82,10 @@ Store only the code references and sanitized evidence needed to explain the resu
 
 ## Finish with evidence and limits
 
-Report discovered scope and review coverage, important findings with code references, implemented changes, checks actually run, and unresolved decisions. Include concrete correction/test recipes for remaining actionable work. Link saved records when available. State whether evidence came from execution or inspection. If nothing is confirmed, say no confirmed defects were found in the reviewed scope and identify untested boundaries.
+The default deliverable is a prioritized issue list visible in the chat itself. Use a numbered list or compact table with stable finding IDs, kind/priority, a plain-language problem and impact, the triggering scenario, relative code references, and a concrete correction/test recipe. Clearly label reproduced failures, static findings, coverage gaps, optional improvements and questions. Group a long report for readability without silently dropping lower-priority findings. Keep the detailed evidence concise enough that the user can choose what to fix from the conversation; a link to a report file alone is insufficient.
 
-Complete the requested review when the inventory has been investigated, the supported findings have dispositions, and authorized, feasible fixes have been checked. If areas remain queued, blocked, or deferred, report an incomplete review with the reason and next work; saving a checkpoint is not completion. Do not claim exhaustive coverage, a comprehensive security audit, or production readiness from a local scenario review.
+Include discovered scope and review coverage, checks actually run, and unresolved or unfinished areas. Say that no application/test changes were made in the default scan. Saved records support the chat report and do not replace it. If nothing is confirmed, say no confirmed defects were found in the reviewed scope and identify untested boundaries. Close with a short example of the next message, such as “Fix F-001 and F-003”; do not begin that work without the user's instruction.
+
+After an authorized repair, instead report the selected findings, changes, fresh verification and still-open items. Keep original IDs so the user can follow the same issues across turns.
+
+Complete a default review when the inventory has been investigated and the findings and their evidence have been presented in chat; applying fixes is a separate user-directed step. If fixes were requested, also check the authorized, feasible corrections. If areas remain queued, blocked, or deferred, report an incomplete review with the reason and next work; saving a checkpoint is not completion. Do not claim exhaustive coverage, a comprehensive security audit, or production readiness from a local scenario review.

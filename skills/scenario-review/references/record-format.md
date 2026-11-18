@@ -2,6 +2,8 @@
 
 Use small Markdown records in the inspected project's `.scenario-review/` directory. The directory is local working memory, not an upload queue. Use relative code paths and stable scenario/finding IDs so a later session can resume without rediscovering the entire review.
 
+Always present the actionable findings in the conversation as well. Use the same finding IDs in the chat list and saved ledgers so a normal “fix F-001” follow-up can refer to either. If records are unavailable, retain these IDs and the needed evidence in the chat. Proposed corrections and tests are plans until the user requests them; default scans leave confirmed findings open rather than implementing them.
+
 ## Layout
 
 ```text
