@@ -1,25 +1,28 @@
 ---
 name: scenario-review
-description: Review an existing project's user flows and business rules for missing or incomplete scenarios, explain gaps with code evidence, and implement and test fixes when requested. Use for scenario reviews, missing-case analysis, and behavioral completeness checks; not for routine edits, style-only reviews, or a standalone security audit.
+description: Run ShipSure on an existing project to discover its modules and flows, find reachable bugs, security-relevant gaps and missing scenarios, fix confirmed defects, and verify with meaningful tests. Use for whole-project quality reviews or finding what breaks and what is missing without a supplied checklist. Respect explicit report-only and narrower requests; not for routine edits or style-only reviews.
 ---
 
 # Scenario Review
 
-Turn a bounded product flow into evidence-backed scenarios, findings, and verified fixes. Work in the inspected project; ShipSure is the review method, not the destination for project data. Respond in the user's language while following the project's naming conventions.
+Discover what an existing project does, where it breaks, what is missing, and how to verify the correction. The user supplies the project, not a list of modules, suspected bugs, edge cases, or tests. Own that discovery and follow the evidence through to authorized fixes. Work in the inspected project; ShipSure is the review method, not the destination for project data. Respond in the user's language while following the project's naming conventions.
 
 ## Establish scope and authority
 
-Infer the target project, flow, and requested outcome from the conversation and repository instructions. Ask only when a missing answer would materially change behavior or scope; continue independent investigation while waiting.
+Infer the target project and requested outcome from the conversation and repository instructions. An explicit bare invocation of `$scenario-review` or “run ShipSure” uses the full discover–fix–verify workflow below. State that mode briefly, then start. Ask only when the target cannot be identified or a missing product decision would materially change a correction; continue independent work while waiting. Do not ask the user to enumerate areas or invent test cases for you.
 
 | User intent | Authorized work |
 | --- | --- |
-| Review, assess, find gaps | Inspect and run safe local checks; record findings. Keep application code and tests unchanged. |
-| Review and fix, complete missing behavior | Inspect, implement supported fixes, add meaningful tests, and verify within the requested scope. |
+| Explicit bare skill invocation, run ShipSure, scan and fix | Discover the whole project, investigate reachable gaps, fix confirmed defects, add meaningful tests, and verify. Leave new product decisions open. |
+| Review only, report findings, no code edits | Discover the requested scope, inspect and run safe local checks, and record concrete correction/test plans. Keep application code and tests unchanged. |
+| Review and fix a named flow, complete specified behavior | Perform the same discover–fix–verify cycle within that boundary. |
 | Verify an existing fix | Recheck the linked scenarios and relevant regressions; record the observed results. |
+
+When selected implicitly during another task, follow that task's scope and modification authority; implicit selection does not authorize a whole-project repair. An explicit report-only instruction always overrides the default workflow.
 
 Honor explicit read-only or no-file instructions over record creation. For no-file requests, use check settings that suppress caches and generated reports; skip checks whose writes cannot be avoided and explain the limit. Reuse authorization already given; do not make approval of every finding a new gate. A review does not authorize deployment, production writes, paid service calls, publishing, or use of the user's signed-in browser. Follow the environment's permissions for those actions.
 
-If no flow is specified, map the product briefly and begin with the most consequential reachable flow, considering exposure, impact, and recent changes. State the chosen boundary. For an explicit whole-project review, continue through the relevant flows in risk order within the user's limits; do not silently reduce the request to one flow. Do not turn a small task into a whole-repository audit.
+If no narrower scope is specified for a ShipSure run, discover the whole project's first-party product surface. Use [references/discovery-workflow.md](references/discovery-workflow.md) to build and work through an evidence-backed inventory. Prioritize by exposure and impact without silently dropping lower-priority areas. A narrow user request stays narrow. Generated assets, vendored code, and unreachable examples need not be reviewed line by line; record relevant exclusions and investigate dependency behavior where it affects the product.
 
 ## Understand the behavior before judging it
 
@@ -28,13 +31,15 @@ Read repository instructions, relevant product documentation, entry points, doma
 Build a compact map of:
 
 - Actors and permissions; public and internal entry points.
-- The selected flow's states, transitions, side effects, and business invariants.
+- Discovered modules and flows, their states, transitions, side effects, and business invariants.
 - External dependencies, persistence boundaries, and existing verification commands.
 - Sources for expected behavior, unresolved decisions, and excluded areas.
 
 Distinguish explicit requirements, conventions inferred from the project, and assumptions. Existing implementation and tests are evidence of current behavior, not automatic proof of intended behavior. Follow both callers and relevant enforcement layers before concluding that a guard is absent. Read only the relevant code; avoid secret files, personal data, and large dumps.
 
 For an unfinished scaffold, identify which behaviors cannot yet be assessed. Do not invent a running product or report hypothetical bugs as findings.
+
+Track review coverage separately from passing tests. As callers, jobs, or shared services reveal new flows, add them to the inventory and investigate their connections. After fixing a shared rule, revisit its affected consumers. Do not stop after the first interesting finding or assume that one green suite covers all discovered areas.
 
 ## Derive and investigate scenarios
 
@@ -46,9 +51,12 @@ Trace the scenario through implementation and tests. For each candidate, disting
 
 - **Behavior defect:** reachable behavior contradicts a supported expectation. Cite the trigger, impact, and code path; reproduce locally when practical. A conclusive static trace can support a finding, but is not an executed test.
 - **Coverage gap:** a meaningful scenario lacks sufficient verification. Missing tests alone do not prove broken behavior; show what existing tests fail to establish.
+- **Improvement opportunity:** project-specific evidence supports a useful enhancement, but no established requirement is violated. Describe the benefit and tradeoff; do not implement a new feature under the authority to fix defects.
 - **Open question:** expected behavior or necessary evidence is unknown. Record the decision or evidence needed, without presenting it as a confirmed defect.
 
 Check for enforcement in middleware, database constraints, shared domain services, and provider contracts before reporting a gap. If the evidence resolves a candidate, close it with the reason. Merge symptoms sharing a root cause while preserving links to their scenarios. Prioritize by plausible impact and reachability; avoid severity based on a hypothetical worst case.
+
+For each actionable gap, derive a correction and test recipe: the supported expectation, affected boundary, proposed change, setup/input, expected observable assertions, appropriate test level, and the existing runner command or missing prerequisite. See the finding format in [references/record-format.md](references/record-format.md). “Add tests” or “improve security” alone is not an actionable result.
 
 ## Fix and verify within scope
 
@@ -72,6 +80,6 @@ Store only the code references and sanitized evidence needed to explain the resu
 
 ## Finish with evidence and limits
 
-Report the reviewed scope, important findings with code references, implemented changes, checks actually run, and unresolved items. Link saved records when available. State whether evidence came from execution or inspection. If nothing is confirmed, say no confirmed defects were found in the reviewed scope and identify untested boundaries.
+Report discovered scope and review coverage, important findings with code references, implemented changes, checks actually run, and unresolved decisions. Include concrete correction/test recipes for remaining actionable work. Link saved records when available. State whether evidence came from execution or inspection. If nothing is confirmed, say no confirmed defects were found in the reviewed scope and identify untested boundaries.
 
-Conclude the bounded pass when the selected scenarios have dispositions and authorized, feasible fixes have been checked. List deferred work explicitly. Do not claim exhaustive coverage, a comprehensive security audit, or production readiness from a local scenario review.
+Complete the requested review when the inventory has been investigated, the supported findings have dispositions, and authorized, feasible fixes have been checked. If areas remain queued, blocked, or deferred, report an incomplete review with the reason and next work; saving a checkpoint is not completion. Do not claim exhaustive coverage, a comprehensive security audit, or production readiness from a local scenario review.

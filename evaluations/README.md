@@ -1,5 +1,7 @@
 # Behavioral evaluation
 
+This procedure exercises explicit review-only, repair, and verification modes. For default discovery without supplied flow names, use the separate [whole-project evaluation](discovery.md).
+
 Use a disposable copy of `reservations/` to exercise the skill through a real coding assistant. Keep this rubric outside the evaluating assistant's context. Give it only the skill folder, fixture files, and one request at a time. Do not run repair evaluation in the canonical fixture: its gaps are intentional.
 
 The fixture requires Python 3 and the standard library. Copy it to an empty temporary directory, optionally initialize a local Git repository to exercise record exclusions, and record the initial hashes of `app.py` and `test_app.py`. No network, browser, credentials, or deployment is needed. Run `python3 -m unittest discover -s . -p 'test_*.py' -v` there to establish the baseline: three tests pass while relevant behavior remains unchecked.

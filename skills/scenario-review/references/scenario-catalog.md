@@ -1,6 +1,6 @@
 # Scenario selection
 
-Use this catalog after mapping the selected flow. Choose dimensions supported by its actors, states, dependencies, and invariants. Unused dimensions need no paperwork. Add domain-specific scenarios when the code or product requirements justify them.
+Use this catalog after discovering the project's flows, or mapping a user-selected flow. Choose dimensions supported by each flow's actors, states, dependencies, and invariants. Unused dimensions need no paperwork. Add domain-specific scenarios when the code or product requirements justify them.
 
 ## Start with an invariant
 
@@ -59,4 +59,4 @@ Rank a confirmed defect using its demonstrated reachability and impact:
 
 For coverage gaps, prioritize the risk of the unverified scenario and label that rationale as coverage risk, not observed damage. Leave an open question unranked when its impact depends on the answer.
 
-Finish the selected pass once its scenarios are investigated or explicitly marked blocked/deferred. Do not generate low-value permutations to inflate counts or claim a coverage percentage without a defined, measured denominator.
+Use the project's coverage inventory to continue beyond one flow in a whole-project run. Investigated, blocked and deferred are different dispositions; deferred work does not mean the requested scan is complete. Do not generate low-value permutations to inflate counts or claim a coverage percentage without a defined, measured denominator.

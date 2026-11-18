@@ -24,12 +24,15 @@ Before persistence, follow the skill's privacy and ignore checks. If records are
 Record:
 
 - Product purpose and selected flow; actors, entry points, states, and side effects.
+- Coverage inventory for the requested scope, including discovered applications/packages, modules, non-UI entry points, and their connections.
 - Business invariants with their sources. Label inferred expectations and unresolved decisions.
 - Relevant code, storage, dependencies, and verification commands with working directories.
 - Review boundary, requested mode, exclusions, and any authorization constraints.
 - Last reviewed run ID, base commit/branch when available, and relevant dirty/untracked files. A commit alone does not identify an uncommitted working tree.
 
 Keep this map scoped. Do not copy entire documentation or an inventory of every file.
+
+For whole-project runs, assign stable area IDs such as `A-001` and keep a compact coverage table: area/entry points, code evidence, connected areas, scenario IDs, review state, verification summary, and last-assessed run. Review states are `queued`, `in-progress`, `reviewed`, `blocked`, or `excluded` with a reason. `reviewed` means the area's relevant scenarios and evidence have been investigated, not that every scenario passed or every defect was fixed. Verification still comes from the scenario/check records. Add newly discovered areas, reuse IDs across runs, and do not mark queued/blocked areas complete to close a report.
 
 ## Scenario ledger: `scenarios.md`
 
@@ -54,7 +57,7 @@ Keep two independent fields:
 
 | Field | Values and meaning |
 | --- | --- |
-| Assessment | `supported`: inspected behavior supports the expectation; `defect`: evidence supports a contradiction; `coverage-gap`: meaningful verification is missing without a demonstrated defect; `question`: expectation/evidence unresolved; `deferred`: not investigated in this pass; `not-applicable`: excluded with a reason. |
+| Assessment | `supported`: inspected behavior supports the expectation; `defect`: evidence supports a contradiction; `coverage-gap`: meaningful verification is missing without a demonstrated defect; `opportunity`: evidence supports an optional improvement; `question`: expectation/evidence unresolved; `deferred`: not investigated in this pass; `not-applicable`: excluded with a reason. |
 | Verification | `observed-passing`: executed check supports this scenario; `observed-failing`: executed check demonstrates its failure; `not-run`: no relevant check executed; `blocked`: execution prevented, with a reason. |
 
 A `supported` static assessment can have `not-run` verification. A failing suite or environment error does not establish an `observed-failing` scenario unless the failure demonstrates the behavior. After a verified correction, update the current assessment and link the resolved finding; keep the earlier failure in its run record.
@@ -63,16 +66,16 @@ A `supported` static assessment can have `not-run` verification. A failing suite
 
 Use IDs such as `F-001`, linked to one or more scenarios. A useful entry contains:
 
-- **Title and kind:** `behavior-defect`, `coverage-gap`, or `open-question`.
+- **Title and kind:** `behavior-defect`, `coverage-gap`, `improvement-opportunity`, or `open-question`. An opportunity is not a broken requirement and is not automatically authorized for implementation.
 - **Priority and rationale:** P0–P3 when supported, or unranked; distinguish coverage risk from demonstrated damage.
 - **State:** `open`, `resolved`, `deferred`, or `dismissed`. Explain deferred/dismissed decisions.
 - **Scenario IDs and trigger:** actor, preconditions, action, expected versus actual result.
 - **Evidence:** relative file paths with symbols/line references, requirement source, and run/check IDs. Distinguish static reasoning from executed reproduction.
 - **Impact and uncertainty:** affected cases, confidence limits, missing evidence or product decision.
-- **Correction and verification:** proposed or applied change, relevant tests, exact evidence for resolution, and remaining boundaries.
+- **Correction and verification recipe:** supported expectation; affected files/boundary and proposed or applied change; test level; fixture/input; assertions on responses, persisted state and side effects; actual runner command or missing prerequisite; exact evidence for resolution and remaining boundaries. For a decision-dependent item, name the unresolved choice before proposing implementation.
 - **History:** first-seen and last-assessed run IDs; link relevant prior dispositions.
 
-An implemented patch with blocked verification stays open with “implemented; verification blocked.” Resolve a behavior defect only when relevant checks support the correction; resolve a coverage gap when a meaningful check is added and successfully executed. Resolve an open question when its answer/source is recorded, then reassess affected scenarios. A finding disproved by additional evidence is dismissed with that evidence, not silently deleted.
+An implemented patch with blocked verification stays open with “implemented; verification blocked.” Resolve a behavior defect only when relevant checks support the correction; resolve a coverage gap when a meaningful check is added and successfully executed. Resolve an open question when its answer/source is recorded, then reassess affected scenarios. An improvement opportunity remains proposed until a user decision; resolve it only after authorized implementation and relevant verification. A finding disproved by additional evidence is dismissed with that evidence, not silently deleted.
 
 ## Run evidence: `runs/<unique-run-id>.md`
 
@@ -91,7 +94,7 @@ Record which changes occurred between checks so a pass applies to a clear code s
 
 ## Resuming a review
 
-1. Read the current map and ledgers, then only the runs relevant to the selected scope.
+1. Read the current map, coverage inventory and ledgers, then only the runs relevant to the selected scope. If older records have no coverage inventory, derive it from the current project without discarding existing scenarios/findings.
 2. Compare the recorded snapshot with the current files. Treat old evidence as historical until revalidated; do not turn yesterday's pass into today's pass.
 3. Match scenarios by actor, preconditions, action, and expected outcome. Reuse IDs; allocate new IDs after the existing maximum and never reuse deleted IDs.
 4. Update current dispositions and append a new run. Reopen a resolved finding if the behavior recurs; preserve its history.
