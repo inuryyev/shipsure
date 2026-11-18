@@ -1,0 +1,10 @@
+# Local review records
+.scenario-review/
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
