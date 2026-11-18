@@ -1,5 +1,7 @@
 # Behavioral evaluation
 
+All evaluation records currently in this repository were produced in Codex with synthetic Python fixtures. Behavior in other coding assistants and on large real-world projects has not been validated.
+
 This procedure exercises explicit review-only, repair, and verification modes. For default discovery without supplied flow names, use the separate [whole-project evaluation](discovery.md).
 
 Use a disposable copy of `reservations/` to exercise the skill through a real coding assistant. Keep this rubric outside the evaluating assistant's context. Give it only the skill folder, fixture files, and one request at a time. Do not run repair evaluation in the canonical fixture: its gaps are intentional.

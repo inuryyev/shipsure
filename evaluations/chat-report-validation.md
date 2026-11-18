@@ -1,5 +1,7 @@
 # Chat report and follow-up repair — 2026-11-18
 
+Evaluation environment: **Codex**, using a synthetic Python fixture. Other coding assistants have not been tested; this record does not establish compatibility with them.
+
 An independent coding assistant received the complete skill, a disposable copy of the [workspace fixture](project-discovery/README.md), and only “Run ShipSure on this existing project.” No module names, suspected bugs, test cases, or special no-edit instruction were supplied. The rubric and independent checker stayed outside its context. All work was restricted to the offline disposable project.
 
 ## Default scan

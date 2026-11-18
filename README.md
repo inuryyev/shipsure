@@ -1,41 +1,58 @@
 # ShipSure
 
-**Find gaps. Review the list. Fix on request.**
+**Improve code quality through meaningful test scenarios.**
 
-ShipSure is an open-source skill that scans an existing project and presents a prioritized issue list directly in your coding assistant's chat. It discovers missing scenarios, reachable bugs, security-relevant gaps and test needs without changing application code or tests. You provide the project; ShipSure discovers what to investigate. You can then ask the same assistant to fix all or selected findings in an ordinary follow-up message.
+ShipSure is an open-source skill that helps you discover which behaviors your code gets wrong, which scenarios are missing, and what needs testing. It scans your existing project and presents a prioritized issue list directly in the chat, with evidence and concrete correction/test plans. The scan leaves application code and tests unchanged. You decide what the assistant fixes afterward.
 
-## Status
+**Currently tested only with Codex**, using small synthetic Python projects. ShipSure's workflow runs through Codex and its normal development tools; broader real-world reliability and behavior in other coding assistants have not been validated.
 
-The `scenario-review` skill includes project discovery, a scenario catalog, correction/test recipes, and resumable local records. The [chat-report validation](evaluations/chat-report-validation.md) checked the default no-code-edit report and an ordinary follow-up repair request on a synthetic fixture. Earlier [reservation](evaluations/validation.md) and [discovery](evaluations/discovery-validation.md) results are historical snapshots. Effectiveness on varied real-world projects still needs evaluation.
+## Quick Start — Codex
 
-## Workflow
+You need Codex with access to the existing project you want to review. **Copy and paste the following prompts into the Codex chat box.** ShipSure requires no separate server, hosted application, or API key of its own.
 
-1. Run the skill in the existing project you want to improve.
-2. It discovers first-party modules, user/API/background flows, business rules, permissions, and tests, maintaining an inventory of review coverage.
-3. It investigates missing or broken behavior across those areas and their connections, using code evidence and local reproduction when practical.
-4. It presents a prioritized list in the chat: the problem, impact, code evidence, and suggested correction and test. Application code and tests stay unchanged.
-5. When you later say “fix these” or select finding IDs, your existing assistant applies the authorized corrections and verifies them with regression tests.
+### 1. Install once
 
-Your existing coding assistant performs the review. ShipSure requires no server, hosted application, or API key of its own. The assistant needs access to the target repository and its normal development tools.
-
-## Use it in your project
-
-In Codex, ask the built-in skill installer once:
+Paste this into Codex:
 
 ```text
-$skill-installer Install skills/scenario-review from the GitHub repository
-inuryyev/shipsure.
+$skill-installer Install skills/scenario-review from the GitHub repository inuryyev/shipsure.
 ```
 
-Open your own existing project in Codex, then send:
+If the installed skill does not appear, restart Codex. See the [official skill installation guide](https://learn.chatgpt.com/docs/build-skills#install-curated-skills-for-local-use) for installer behavior.
+
+### 2. Open your project and scan it
+
+Open the project you want to improve in Codex. In that project's chat, paste:
 
 ```text
 $scenario-review
 ```
 
-**The default is a whole-project scan followed by an issue list in the chat, with no application or test edits.** You do not need to name modules, suspected security issues, failure cases, or test methods. Existing safe checks or inline probes may run to substantiate findings. The assistant does not automatically fix even an obvious or high-priority defect.
+Codex discovers the project's modules and flows, investigates missing scenarios and failures, and returns the findings in the same chat. **No application code or tests are changed during the scan.** Safe existing checks or inline probes may run. You do not need to supply a list of modules, suspected bugs, or test cases.
 
-For example, the chat might show:
+### 3. Read the list, then request the fixes you want
+
+Use the finding IDs from your actual report. For example, paste this into the same chat when you want those two items fixed:
+
+```text
+Fix F-001 and F-002, add regression tests, and run the relevant checks.
+```
+
+Codex already has the findings and performs the requested corrections and tests. You can continue in ordinary language without invoking the skill again. Optional features and ambiguous product decisions remain yours to decide. ShipSure does not automatically proceed from the list to repairs.
+
+## Why tests and scenarios matter
+
+**Meaningful tests are ShipSure's primary evidence of code quality.** The goal is to find important behaviors missing from the implementation or its test suite, then turn those gaps into reproducible scenarios and, when requested, regression tests.
+
+Broader coverage of distinct, relevant scenarios gives stronger evidence that the code behaves as intended. That includes normal user journeys, empty and boundary inputs, roles and ownership, state changes, retries, and dependency failures. A useful test checks the observable result and any relevant changes to stored data or side effects. A regression test should demonstrate the failure before a correction and pass afterward when practical.
+
+The value comes from the behaviors covered and the assertions made. Raw test counts, repeated happy-path tests, or line coverage alone cannot establish product quality. Tests provide evidence for the scenarios they exercise; maintainability, design and other untested properties still need review. ShipSure records which scenarios were investigated, which checks ran, and what remains unverified instead of claiming a universal quality score or exhaustive coverage.
+
+This is why ShipSure exists: help you answer **“What can break, what is missing, and which tests would prove it works?”** without having to identify every gap yourself.
+
+## What appears in your chat
+
+An illustrative report might contain:
 
 ```text
 1. F-001 — High: a report includes another tenant's data.
@@ -47,19 +64,16 @@ For example, the chat might show:
    Correction/test: reject at expiry without consuming the token.
 ```
 
-These are illustrative findings, not a scan of your project. After reading your actual list, send a normal message in that same chat:
+These are examples, not findings from your project. Actual findings distinguish demonstrated behavior defects, missing test coverage, optional improvements, and unanswered product decisions.
 
-```text
-Fix F-001 and F-002, add regression tests, and run the relevant checks.
-```
+## Workflow
 
-There is no separate repair service, new chat, or second skill invocation to manage. The coding assistant already has the findings and performs the requested fixes. Optional new features and ambiguous product decisions remain yours to decide. A default scan ends after its report; it does not start the repair step by itself.
+1. Discover first-party modules, user/API/background flows, business rules, permissions, and tests, maintaining an inventory of review coverage.
+2. Investigate behavior across those areas and their connections, using code evidence and local reproduction when practical.
+3. Present the prioritized issue list in the chat, with impact, evidence, a correction plan and a meaningful test scenario.
+4. After a user correction request, implement the selected fixes and verify them with the relevant checks.
 
 For a smaller scan, name its scope, for example: `$scenario-review Review only the invitation flow.` If you explicitly request review and fixes together, that authorization applies within your stated scope. Implicit skill selection during another task preserves that task's scope and authority. Deployment, publishing, and live-system operations require their own applicable authorization.
-
-The [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills#install-curated-skills-for-local-use) describes the installer and discovery behavior. If a newly installed skill does not appear, restart Codex.
-
-You can also point an assistant directly at [skills/scenario-review/SKILL.md](skills/scenario-review/SKILL.md) and ask it to run ShipSure in the target project. Keep the entire skill folder available for its linked references.
 
 ## What a review produces
 
@@ -70,6 +84,12 @@ You can also point an assistant directly at [skills/scenario-review/SKILL.md](sk
 - A record of reviewed areas, checks actually run, blocked verification, and unfinished work.
 
 Default scans keep application code and tests unchanged. Explicit read-only or no-file requests also suppress record writes. After a correction request, the assistant reports the selected fixes and fresh test evidence. An absent test is not automatically a defect, and a local passing test is not a guarantee of production readiness.
+
+## Validation and compatibility
+
+**Evaluated in Codex only so far.** The [chat-report validation](evaluations/chat-report-validation.md) checked the default no-code-edit report and an ordinary follow-up repair request on a synthetic Python fixture. Earlier [reservation](evaluations/validation.md) and [discovery](evaluations/discovery-validation.md) results are historical Codex evaluation snapshots.
+
+The skill is supplied as instructions and reference files, and Codex performs the actual repository inspection, diagnostics and user-requested edits. Behavior in other coding assistants has not been tested. The current evidence also does not establish effectiveness across large real-world projects or other language/framework stacks.
 
 ## Skill layout
 
@@ -84,6 +104,8 @@ skills/
         ├── scenario-catalog.md
         └── record-format.md
 ```
+
+For direct-file use, point Codex at [skills/scenario-review/SKILL.md](skills/scenario-review/SKILL.md) and the target project. Keep the complete skill folder available for its linked references.
 
 ## Project records and privacy
 
